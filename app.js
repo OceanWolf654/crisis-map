@@ -182,76 +182,69 @@ class NaturalPhenomenaApp {
     }
 
     // NEW - PARSE SMITHSONIAN VOLCANO FEED
-    async fetchVolcanoes() {
-        try {
-            console.log('Fetching volcanoes from:', this.apiUrls.volcanoes);
-            
-            const response = await fetch(this.apiUrls.volcanoes);
-            const xmlText = await response.text();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(xmlText, 'text/xml');
-            const items = [...doc.querySelectorAll('item')];
+    async fetchVolcanoes () {
+  try {
+    const proxyURL = `https://api.allorigins.win/get?url=${encodeURIComponent(this.apiUrls.volcanoes)}`;
+    const xmlText  = (await fetch(proxyURL).then(r => r.json())).contents;
 
-            return items.map((item, i) => ({
-                id: `gvp_${i}`,
-                type: 'volcano',
-                title: item.querySelector('title')?.textContent || 'Volcano update',
-                description: item.querySelector('description')?.textContent || 'Volcanic activity',
-                latitude: parseFloat(item.querySelector('geo\\:lat, lat')?.textContent) || 0,
-                longitude: parseFloat(item.querySelector('geo\\:long, long')?.textContent) || 0,
-                vei: 1,
-                alert_level: 'ADVISORY',
-                color_code: 'YELLOW',
-                timestamp: new Date(item.querySelector('pubDate')?.textContent || Date.now()).toISOString(),
-                source: 'Smithsonian GVP',
-                status: 'ongoing'
-            })).filter(v => v.latitude && v.longitude);
-        } catch (error) {
-            console.error('Error fetching volcanoes:', error);
-            return [];
-        }
-    }
+    const doc   = new DOMParser().parseFromString(xmlText,'text/xml');
+    const items = [...doc.querySelectorAll('item')];
+
+    return items.map((it,i)=>({
+      id         : `gvp_${i}`,
+      type       : 'volcano',
+      title      : it.querySelector('title')?.textContent ?? 'Volcano update',
+      description: it.querySelector('description')?.textContent ?? '',
+      latitude   : parseFloat(it.querySelector('geo\\:lat, lat')?.textContent),
+      longitude  : parseFloat(it.querySelector('geo\\:long, long')?.textContent),
+      vei        : 1,
+      alert_level: 'ADVISORY',
+      color_code : 'YELLOW',
+      timestamp  : new Date(it.querySelector('pubDate')?.textContent).toISOString(),
+      source     : 'Smithsonian GVP',
+      status     : 'ongoing'
+    })).filter(v => v.latitude && v.longitude);
+  } catch (e) {
+    console.error('Volcano proxy fetch error',e);
+    return [];
+  }
+}
 
     // NEW - PARSE GDACS MULTI-HAZARD FEED
-    async fetchGdacs() {
-        try {
-            console.log('Fetching GDACS data from:', this.apiUrls.gdacs);
-            
-            const response = await fetch(this.apiUrls.gdacs);
-            const xmlText = await response.text();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(xmlText, 'text/xml');
-            const items = [...doc.querySelectorAll('item')];
+    async fetchGdacs () {
+  try {
+    const proxyURL = `https://api.allorigins.win/get?url=${encodeURIComponent(this.apiUrls.gdacs)}`;
+    const xmlText  = (await fetch(proxyURL).then(r => r.json())).contents;
 
-            return items.map((item, i) => {
-                const title = item.querySelector('title')?.textContent || '';
-                const description = item.querySelector('description')?.textContent || '';
-                
-                // Determine event type from content
-                let eventType = 'wildfire';
-                if (/flood/i.test(title + description)) eventType = 'flood';
-                else if (/cyclone|hurricane|typhoon|storm/i.test(title + description)) eventType = 'cyclone';
-                else if (/fire/i.test(title + description)) eventType = 'wildfire';
-                else if (/heat|drought/i.test(title + description)) eventType = 'heatwave';
+    const doc   = new DOMParser().parseFromString(xmlText,'text/xml');
+    const items = [...doc.querySelectorAll('item')];
 
-                return {
-                    id: `gdacs_${i}`,
-                    type: eventType,
-                    title: title,
-                    description: description,
-                    latitude: parseFloat(item.querySelector('geo\\:lat, lat')?.textContent) || 0,
-                    longitude: parseFloat(item.querySelector('geo\\:long, long')?.textContent) || 0,
-                    intensity: 'Moderate',
-                    timestamp: new Date(item.querySelector('pubDate')?.textContent || Date.now()).toISOString(),
-                    source: 'GDACS',
-                    status: 'active'
-                };
-            }).filter(e => e.latitude && e.longitude);
-        } catch (error) {
-            console.error('Error fetching GDACS data:', error);
-            return [];
-        }
-    }
+    return items.map((it,i)=>{
+      const title = it.querySelector('title')?.textContent ?? '';
+      const desc  = it.querySelector('description')?.textContent ?? '';
+      let   type  = /flood/i.test(title+desc)    ? 'flood'   :
+                    /cyclone|hurricane|storm/i.test(title+desc) ? 'cyclone' :
+                    /fire/i.test(title+desc)     ? 'wildfire':
+                    /heat|drought/i.test(title+desc) ? 'heatwave' : 'other';
+
+      return {
+        id        : `gdacs_${i}`,
+        type      : type,
+        title     : title,
+        description: desc,
+        latitude  : parseFloat(it.querySelector('geo\\:lat, lat')?.textContent),
+        longitude : parseFloat(it.querySelector('geo\\:long, long')?.textContent),
+        intensity : 'Moderate',
+        timestamp : new Date(it.querySelector('pubDate')?.textContent).toISOString(),
+        source    : 'GDACS',
+        status    : 'active'
+      };
+    }).filter(e => e.latitude && e.longitude);
+  } catch (e) {
+    console.error('GDACS proxy fetch error',e);
+    return [];
+  }
+}
 
     loadFallbackData() {
         console.log('Loading fallback sample data...');
