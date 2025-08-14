@@ -1,6 +1,6 @@
 An interactive, real-time visualization platform that displays natural disasters, extreme weather events, and global emergencies on a 3D/2D world map. The project fetches live data from multiple APIs and presents it with intuitive filtering, severity indicators, and timeline playback.
 
-#📌 Features
+# 📌 Features
 
 Real-Time Data — Fetches disaster reports as they happen using multiple global APIs (earthquakes, cyclones, floods, wildfires, etc.).
 
@@ -16,13 +16,13 @@ Custom Filters — Filter events by type, location, and severity.
 
 Responsive UI — Works on desktop, tablet, and mobile.
 
-#🚀 Tech Stack
+# 🚀 Tech Stack
 
 Frontend: HTML5, CSS3, JavaScript, Leaflet.js or Mapbox GL JS, D3.js for data visualization.
 
 Backend: Node.js (Express) for API aggregation & caching.
 
-#APIs:
+# APIs:
 
 USGS Earthquake Hazards Program
 
@@ -32,7 +32,7 @@ GDACS
 
 Weather & storm data sources.
 
-#📦 Installation
+# 📦 Installation
  Clone the repository
 git clone https://github.com/<your-username>/<repo-name>.git
 
@@ -45,7 +45,7 @@ npm install
  Start the development server
 npm run dev
 
-#⚡ Usage
+# ⚡ Usage
 
 Open http://localhost:3000 in your browser.
 
@@ -53,7 +53,7 @@ Interact with the map using zoom, click, and filter controls.
 
 Toggle the timeline mode to view past events.
 
-#📁 Project Structure
+# 📁 Project Structure
 /public         # Static assets
 /src
    /frontend    # UI components, map rendering
@@ -62,11 +62,11 @@ Toggle the timeline mode to view past events.
 README.md
 package.json
 
-#📜 License
+# 📜 License
 
 I recommend MIT License — it’s simple, permissive, and allows anyone to use, modify, and distribute your code with attribution.
 
-#🤝 Contributing
+# 🤝 Contributing
 
 Contributions are welcome!
 
