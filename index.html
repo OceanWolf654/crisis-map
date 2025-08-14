@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Natural Phenomena Dashboard</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <h1 class="header-title">
+                <span class="title-icon">🌍</span>
+                Global Natural Phenomena Dashboard
+            </h1>
+            <div class="header-controls">
+                <div class="data-refresh">
+                    <span class="refresh-indicator"></span>
+                    <span class="refresh-text">Live Data</span>
+                </div>
+                <button class="btn btn--primary export-btn" id="exportBtn">
+                    📊 Export CSV
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <span class="toggle-icon">‹</span>
+            </button>
+            
+            <!-- Filters Section -->
+            <section class="sidebar-section">
+                <h3 class="section-title">Event Filters</h3>
+                
+                <!-- Event Type Filters -->
+                <div class="filter-group">
+                    <label class="filter-label">Event Types</label>
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-type="all">All Events</button>
+                        <button class="filter-btn" data-type="earthquake">🔴 Earthquakes</button>
+                        <button class="filter-btn" data-type="volcano">🟠 Volcanoes</button>
+                        <button class="filter-btn" data-type="heatwave">🟣 Heat Waves</button>
+                        <button class="filter-btn" data-type="cyclone">🌪️ Cyclones</button>
+                        <button class="filter-btn" data-type="wildfire">🔥 Wildfires</button>
+                        <button class="filter-btn" data-type="flood">🔵 Floods</button>
+                    </div>
+                </div>
+
+                <!-- Magnitude/Intensity Filter -->
+                <div class="filter-group">
+                    <label class="filter-label">Minimum Intensity</label>
+                    <div class="slider-container">
+                        <input type="range" id="intensitySlider" min="0" max="10" value="0" step="0.1" class="slider">
+                        <div class="slider-labels">
+                            <span>0</span>
+                            <span id="intensityValue">0</span>
+                            <span>10</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Time Range Filter -->
+                <div class="filter-group">
+                    <label class="filter-label">Time Range</label>
+                    <select id="timeFilter" class="form-control">
+                        <option value="all">All Time</option>
+                        <option value="1h">Last Hour</option>
+                        <option value="24h" selected>Last 24 Hours</option>
+                        <option value="7d">Last 7 Days</option>
+                        <option value="30d">Last 30 Days</option>
+                    </select>
+                </div>
+            </section>
+
+            <!-- News Headlines Section -->
+            <section class="sidebar-section">
+                <h3 class="section-title">Latest Headlines</h3>
+                <div class="news-container" id="newsContainer">
+                    <div class="loading-spinner">Loading news...</div>
+                </div>
+            </section>
+
+            <!-- Scientific Info Section -->
+            <section class="sidebar-section">
+                <h3 class="section-title">Scientific Explanations</h3>
+                <div class="scientific-info" id="scientificInfo">
+                    <div class="info-tab active" data-type="earthquake">
+                        <h4>🔴 Earthquakes</h4>
+                        <p>Caused by sudden release of energy in Earth's crust along tectonic plate boundaries.</p>
+                    </div>
+                    <div class="info-tab" data-type="volcano">
+                        <h4>🟠 Volcanoes</h4>
+                        <p>Result from magma rising from Earth's mantle due to buoyancy and pressure.</p>
+                    </div>
+                    <div class="info-tab" data-type="weather">
+                        <h4>🌦️ Extreme Weather</h4>
+                        <p>Intensified by climate change affecting atmospheric and oceanic patterns.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recent Events -->
+            <section class="sidebar-section">
+                <h3 class="section-title">Recent Events</h3>
+                <div class="recent-events" id="recentEvents">
+                    <div class="loading-spinner">Loading events...</div>
+                </div>
+            </section>
+        </aside>
+
+        <!-- Map Container -->
+        <main class="map-container">
+            <div id="map"></div>
+            
+            <!-- Map Legend -->
+            <div class="map-legend">
+                <h4>Event Legend</h4>
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <span class="legend-marker earthquake"></span>
+                        <span>Earthquakes</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-marker volcano"></span>
+                        <span>Volcanoes</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-marker weather"></span>
+                        <span>Weather Events</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading Overlay -->
+            <div class="loading-overlay" id="loadingOverlay">
+                <div class="loading-content">
+                    <div class="loading-spinner-large"></div>
+                    <p>Loading global phenomena data...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Status Bar -->
+    <footer class="status-bar">
+        <div class="status-content">
+            <div class="status-item">
+                <span class="status-label">Total Events:</span>
+                <span class="status-value" id="totalEvents">0</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Visible Events:</span>
+                <span class="status-value" id="visibleEvents">0</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Last Updated:</span>
+                <span class="status-value" id="lastUpdated">--:--</span>
+            </div>
+            <div class="status-item">
+                <span class="status-indicator"></span>
+                <span class="status-label">Auto-refresh: 5min</span>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
